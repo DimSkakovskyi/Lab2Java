@@ -23,4 +23,100 @@
         </visualParameters>
         <value>21500.00</value>
     </Gem>
+
+    <Gem id="g3">
+        <name>Sapphire</name>
+        <preciousness>precious</preciousness>
+        <origin>Sri Lanka</origin>
+        <visualParameters>
+            <color>blue</color>
+            <transparency>60.50</transparency>
+            <facets>10</facets>
+        </visualParameters>
+        <value>18990.00</value>
+    </Gem>
+
+    <Gem id="g4">
+        <name>Topaz</name>
+        <preciousness>semiprecious</preciousness>
+        <origin>Brazil</origin>
+        <visualParameters>
+            <color>yellow</color>
+            <transparency>92.00</transparency>
+            <facets>6</facets>
+        </visualParameters>
+        <value>3200.00</value>
+    </Gem>
+
+    <Gem id="g5">
+        <name>Amethyst</name>
+        <preciousness>semiprecious</preciousness>
+        <origin>Uruguay</origin>
+        <visualParameters>
+            <color>purple</color>
+            <transparency>35.00</transparency>
+            <facets>9</facets>
+        </visualParameters>
+        <value>1450.50</value>
+    </Gem>
+
+    <Gem id="g6">
+        <name>Garnet</name>
+        <preciousness>semiprecious</preciousness>
+        <origin>India</origin>
+        <visualParameters>
+            <color>red</color>
+            <transparency>40.00</transparency>
+            <facets>4</facets>
+        </visualParameters>
+        <value>980.00</value>
+    </Gem>
+
+    <Gem id="g7">
+        <name>Peridot</name>
+        <preciousness>semiprecious</preciousness>
+        <origin>Pakistan</origin>
+        <visualParameters>
+            <color>green</color>
+            <transparency>55.25</transparency>
+            <facets>15</facets>
+        </visualParameters>
+        <value>2100.00</value>
+    </Gem>
+
+    <Gem id="g8">
+        <name>Opal</name>
+        <preciousness>semiprecious</preciousness>
+        <origin>Australia</origin>
+        <visualParameters>
+            <color>white</color>
+            <transparency>10.00</transparency>
+            <facets>7</facets>
+        </visualParameters>
+        <value>2750.00</value>
+    </Gem>
+
+    <Gem id="g9">
+        <name>Diamond</name>
+        <preciousness>precious</preciousness>
+        <origin>Botswana</origin>
+        <visualParameters>
+            <color>colorless</color>
+            <transparency>100.00</transparency>
+            <facets>8</facets>
+        </visualParameters>
+        <value>50250.00</value>
+    </Gem>
+
+    <Gem id="g10">
+        <name>Citrine</name>
+        <preciousness>semiprecious</preciousness>
+        <origin>Madagascar</origin>
+        <visualParameters>
+            <color>yellow</color>
+            <transparency>0.00</transparency>
+            <facets>5</facets>
+        </visualParameters>
+        <value>875.25</value>
+    </Gem>
 </Gems>

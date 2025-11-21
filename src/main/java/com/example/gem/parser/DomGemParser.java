@@ -3,7 +3,11 @@ package com.example.gem.parser;
 import com.example.gem.ColorType;
 import com.example.gem.Gem;
 import com.example.gem.PreciousnessType;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -19,9 +23,15 @@ public class DomGemParser implements GemParser {
 
     @Override
     public List<Gem> parse(Path xmlPath) throws Exception {
-        if (xmlPath == null) throw new IllegalArgumentException("xmlPath is null");
-        if (!Files.exists(xmlPath)) throw new IOException("XML file not found: " + xmlPath);
-        if (!Files.isRegularFile(xmlPath)) throw new IOException("Not a regular file: " + xmlPath);
+        if (xmlPath == null) {
+            throw new IllegalArgumentException("xmlPath is null");
+        }
+        if (!Files.exists(xmlPath)) {
+            throw new IOException("XML file not found: " + xmlPath);
+        }
+        if (!Files.isRegularFile(xmlPath)) {
+            throw new IOException("Not a regular file: " + xmlPath);
+        }
 
         // 1) DOM-білдер
         var dbf = DocumentBuilderFactory.newInstance();
@@ -29,7 +39,7 @@ public class DomGemParser implements GemParser {
         dbf.setIgnoringComments(true);
         dbf.setIgnoringElementContentWhitespace(true);
 
-        var db  = dbf.newDocumentBuilder();
+        var db = dbf.newDocumentBuilder();
         Document doc = db.parse(xmlPath.toFile());
         if (doc.getDocumentElement() == null) {
             throw new IllegalArgumentException("Empty XML document");
@@ -38,7 +48,7 @@ public class DomGemParser implements GemParser {
 
         // 2) <Gem> елементи
         NodeList nodes = doc.getElementsByTagName("Gem");
-        if (nodes == null || nodes.getLength() == 0) {
+        if (nodes.getLength() == 0) {
             throw new IllegalArgumentException("No <Gem> elements found");
         }
 
@@ -46,14 +56,16 @@ public class DomGemParser implements GemParser {
 
         // 3) Розбір кожного Gem
         for (int i = 0; i < nodes.getLength(); i++) {
-            if (!(nodes.item(i) instanceof Element)) continue;
-            Element e = (Element) nodes.item(i);
+            Node node = nodes.item(i);
+            if (!(node instanceof Element e)) {
+                continue;
+            }
 
             Gem gem = new Gem();
 
             // id (обов'язковий)
-            String id = e.getAttribute("id");
-            if (id == null || id.isBlank()) {
+            String id = e.getAttribute("id"); // ніколи не null
+            if (id.isBlank()) {
                 throw new IllegalArgumentException(ctx(e) + "Missing required attribute @id");
             }
             gem.setId(id.trim());
@@ -65,10 +77,14 @@ public class DomGemParser implements GemParser {
             // preciousness -> enum
             String preciousText = requiredText(e, "preciousness");
             try {
-                gem.setPreciousness(PreciousnessType.valueOf(preciousText.trim().toUpperCase()));
+                gem.setPreciousness(
+                        PreciousnessType.valueOf(preciousText.trim().toUpperCase())
+                );
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException(ctx(e) + "Invalid <preciousness>: '" + preciousText
-                        + "'. Allowed: " + enumValues(PreciousnessType.values()));
+                throw new IllegalArgumentException(
+                        ctx(e) + "Invalid <preciousness>: '" + preciousText
+                                + "'. Allowed: " + enumValues(PreciousnessType.values())
+                );
             }
 
             // visualParameters
@@ -80,27 +96,37 @@ public class DomGemParser implements GemParser {
             try {
                 v.setColor(ColorType.valueOf(colorText.trim().toUpperCase()));
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException(ctx(vp) + "Invalid <color>: '" + colorText
-                        + "'. Allowed: " + enumValues(ColorType.values()));
+                throw new IllegalArgumentException(
+                        ctx(vp) + "Invalid <color>: '" + colorText
+                                + "'. Allowed: " + enumValues(ColorType.values())
+                );
             }
 
             // transparency: 0..100
-            BigDecimal transparency = parseDecimal(requiredText(vp, "transparency"),
-                    0.0, 100.0, ctx(vp) + "Invalid <transparency>. Expected 0..100: ");
+            BigDecimal transparency = parseDecimal(
+                    requiredText(vp, "transparency"),
+                    0.0,
+                    100.0,
+                    ctx(vp) + "Invalid <transparency>. Expected 0..100: "
+            );
             v.setTransparency(transparency);
 
             // facets: 4..15
-            int facets = parseInt(requiredText(vp, "facets"),
-                    FACETS_MIN, FACETS_MAX,
-                    ctx(vp) + "Invalid <facets>. Expected " + FACETS_MIN + ".." + FACETS_MAX + ": ");
+            int facets = parseFacets(
+                    requiredText(vp, "facets"),
+                    ctx(vp) + "Invalid <facets>. Expected " + FACETS_MIN + ".." + FACETS_MAX + ": "
+            );
             v.setFacets(facets);
 
             gem.setVisualParameters(v);
 
             // value: > 0
-            BigDecimal value = parseDecimal(requiredText(e, "value"),
-                    Double.MIN_VALUE, Double.POSITIVE_INFINITY,
-                    ctx(e) + "Invalid <value>. Must be > 0: ");
+            BigDecimal value = parseDecimal(
+                    requiredText(e, "value"),
+                    Double.MIN_VALUE,
+                    Double.POSITIVE_INFINITY,
+                    ctx(e) + "Invalid <value>. Must be > 0: "
+            );
             gem.setValue(value);
 
             result.add(gem);
@@ -110,15 +136,19 @@ public class DomGemParser implements GemParser {
     }
 
     private static Element requiredElement(Element parent, String tag) {
-        NodeList nl = parent.getElementsByTagName(tag);
-        if (nl == null || nl.getLength() == 0) {
-            throw new IllegalArgumentException(ctx(parent) + "Missing <" + tag + "> in <" + parent.getTagName() + ">");
+        NodeList nl = parent.getElementsByTagName(tag); // ніколи не null
+        if (nl.getLength() == 0) {
+            throw new IllegalArgumentException(
+                    ctx(parent) + "Missing <" + tag + "> in <" + parent.getTagName() + ">"
+            );
         }
         Node n = nl.item(0);
-        if (!(n instanceof Element)) {
-            throw new IllegalArgumentException(ctx(parent) + "<" + tag + "> is not an element");
+        if (!(n instanceof Element el)) {
+            throw new IllegalArgumentException(
+                    ctx(parent) + "<" + tag + "> is not an element"
+            );
         }
-        return (Element) n;
+        return el;
     }
 
     private static String requiredText(Element parent, String tag) {
@@ -134,11 +164,14 @@ public class DomGemParser implements GemParser {
         return trimmed;
     }
 
-    private static BigDecimal parseDecimal(String s, double minInclusive, double maxExclusive, String msg) {
+    private static BigDecimal parseDecimal(String s,
+                                           double minInclusive,
+                                           double maxInclusive,
+                                           String msg) {
         try {
             BigDecimal bd = new BigDecimal(s.trim());
             double d = bd.doubleValue();
-            if (!(d >= minInclusive && d < maxExclusive)) {
+            if (d < minInclusive || d > maxInclusive) {
                 throw new IllegalArgumentException(msg + s);
             }
             return bd;
@@ -147,10 +180,14 @@ public class DomGemParser implements GemParser {
         }
     }
 
-    private static int parseInt(String s, int minInclusive, int maxInclusive, String msg) {
+    /**
+     * Спеціальний парсер для кількості граней (facets).
+     * Межі задані константами FACETS_MIN..FACETS_MAX.
+     */
+    private static int parseFacets(String s, String msg) {
         try {
             int v = Integer.parseInt(s.trim());
-            if (v < minInclusive || v > maxInclusive) {
+            if (v < FACETS_MIN || v > FACETS_MAX) {
                 throw new IllegalArgumentException(msg + s);
             }
             return v;
@@ -163,7 +200,9 @@ public class DomGemParser implements GemParser {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < vals.length; i++) {
             sb.append(vals[i].name().toLowerCase());
-            if (i + 1 < vals.length) sb.append(", ");
+            if (i + 1 < vals.length) {
+                sb.append(", ");
+            }
         }
         return sb.toString();
     }

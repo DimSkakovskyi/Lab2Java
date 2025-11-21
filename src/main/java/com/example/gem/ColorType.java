@@ -7,5 +7,9 @@ import jakarta.xml.bind.annotation.XmlEnumValue;
 public enum ColorType {
     @XmlEnumValue("green")  GREEN,
     @XmlEnumValue("red")    RED,
-    @XmlEnumValue("yellow") YELLOW
+    @XmlEnumValue("yellow") YELLOW,
+    @XmlEnumValue("blue")      BLUE,
+    @XmlEnumValue("purple")    PURPLE,
+    @XmlEnumValue("white")     WHITE,
+    @XmlEnumValue("colorless") COLORLESS
 }
